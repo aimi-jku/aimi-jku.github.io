@@ -1,4 +1,4 @@
-name: Run my script
+name: Fetch citations
 
 on:
   workflow_dispatch:
