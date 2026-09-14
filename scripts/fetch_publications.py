@@ -5,14 +5,26 @@ import yaml
 from pathlib import Path
 
 # set API access environment variables
-api_key = os.environ['API_KEY']
-base_url = os.environ['BASE_URL']
+#api_key = os.environ['API_KEY']
+#base_url = os.environ['BASE_URL']
+#members = os.environ.get('MEMBERS')
+
+api_key = "11643f1a-213d-4802-b7ab-2fbedbe2e31d"
+base_url = "https://jku-staging.elsevierpure.com/ws/api"
 members = os.environ.get('MEMBERS')
 
 # helper function for getting author(s) from a publication
 def get_authors(pub_json):
     authors = [f"{author['name'].get('lastName')}, {author['name'].get('firstName')}" for author in pub_json.get('contributors', [])]
     return ' and '.join(authors)
+
+def get_pdf_link(pub_json):
+    for version in pub_json.get("electronicVersions", []) or []:
+        if version.get("typeDiscriminator") == "DoiElectronicVersion":
+            doi = version.get("doi")
+            if doi:
+                return f"https://doi.org/{doi}"
+    return None
 
 # helper function for getting title (and optionally subtitle) from a publication
 def get_title(pub_json):
@@ -64,6 +76,7 @@ def get_fields(pub_json):
         'author': get_authors(pub_json),
         'title': get_title(pub_json),
         'year': get_year(pub_json),
+        'pdf': get_pdf_link(pub_json),
         **add_fields,
     }
 
