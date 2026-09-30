@@ -9,6 +9,9 @@ api_key = os.environ['API_KEY']
 base_url = os.environ['BASE_URL']
 members = os.environ.get('MEMBERS')
 
+with open("./_data/code_mapping.yml", encoding="utf-8") as stream:
+        code_links = yaml.safe_load(stream) or {}
+
 # helper function for getting author(s) from a publication
 def get_authors(pub_json):
     authors = [f"{author['name'].get('lastName')}, {author['name'].get('firstName')}" for author in pub_json.get('contributors', [])]
@@ -43,6 +46,10 @@ def gen_key(record):
     last = re.sub(r'[^a-z]', '', authors.split(',')[0].lower()) if authors else 'anon'
     word = re.sub(r'[^a-z0-9]', '', get_title(record).lower())[:8]
     return f"{last}{get_year(record)}{word}"
+
+# helper function to map the code repos to the publications
+def get_code_link(pub_json):
+    return code_links.get(gen_key(pub_json))
     
 # helper function for extracting fields for papers.bib from JSON
 def get_fields(pub_json):
@@ -73,6 +80,7 @@ def get_fields(pub_json):
         'title': get_title(pub_json),
         'year': get_year(pub_json),
         'pdf': get_pdf_link(pub_json),
+        'code': get_code_link(pub_json),
         **add_fields,
     }
 
@@ -93,6 +101,7 @@ def to_bibtex(fields):
 # fetch all group members
 if members:
     members_yaml = yaml.safe_load(members)
+
     # set up request variables
     REQUEST_HEADERS = {
         'api-key': api_key
