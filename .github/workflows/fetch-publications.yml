@@ -1,6 +1,9 @@
 name: Fetch publications
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "15 10 * * 1"
+      timezone: "Europe/Vienna"
 
 permissions:
   contents: write
