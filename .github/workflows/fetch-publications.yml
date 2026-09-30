@@ -6,7 +6,7 @@ on:
       timezone: "Europe/Vienna"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   fetch-publications:
