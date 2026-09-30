@@ -93,32 +93,30 @@ def to_bibtex(fields):
 # fetch all group members
 if members:
     members_yaml = yaml.safe_load(members)
+    # set up request variables
+    REQUEST_HEADERS = {
+        'api-key': api_key
+    }
+    
+    all_uuids = set()
+    # request and filter dependents to ResearchOutputs
+    for member in members_yaml['groupmembers']:
+        # fetch all dependents
+        r = requests.get(f"{base_url}/persons/{member['pure_id']}/dependents", headers=REQUEST_HEADERS, timeout=30)
+        output = r.json().get('items', [])
+    
+        # filter dependents to which ones are publications (=research outputs), get the UUIDs and deduplicate them
+        all_uuids.update([i['uuid'] for i in output if i.get('systemName') == 'ResearchOutput'])
+    
+    # fetch details for each publication across all members
+    PUB_REQUEST_BODY = {
+        'uuids': list(all_uuids),
+        'size': 500
+    }
+    r = requests.post(f'{base_url}/research-outputs/search', headers=REQUEST_HEADERS, json=PUB_REQUEST_BODY, timeout=30)
+    
+    # parse paper details into bibtex entries and create papers.bib
+    bibtex_entries = [to_bibtex(get_fields(rec)) for rec in r.json().get("items", [])]
+    Path("_bibliography/papers.bib").write_text("\n\n".join(bibtex_entries), encoding="utf-8")
 else:
-    stream = open('./_data/members.yml')
-    members_yaml = yaml.safe_load(stream)
-
-# set up request variables
-REQUEST_HEADERS = {
-    'api-key': api_key
-}
-
-all_uuids = set()
-# request and filter dependents to ResearchOutputs
-for member in members_yaml['groupmembers']:
-    # fetch all dependents
-    r = requests.get(f"{base_url}/persons/{member['pure_id']}/dependents", headers=REQUEST_HEADERS)
-    output = r.json().get('items', [])
-
-    # filter dependents to which ones are publications (=research outputs), get the UUIDs and deduplicate them
-    all_uuids.update([i['uuid'] for i in output if i.get('systemName') == 'ResearchOutput'])
-
-# fetch details for each publication across all members
-PUB_REQUEST_BODY = {
-    'uuids': list(all_uuids),
-    'size': 500
-}
-r = requests.post(f'{base_url}/research-outputs/search', headers=REQUEST_HEADERS, json=PUB_REQUEST_BODY)
-
-# parse paper details into bibtex entries and create papers.bib
-bibtex_entries = [to_bibtex(get_fields(rec)) for rec in r.json().get("items", [])]
-Path("_bibliography/papers.bib").write_text("\n\n".join(bibtex_entries), encoding="utf-8")
+    print("No members found.")
