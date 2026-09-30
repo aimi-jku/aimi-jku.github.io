@@ -102,7 +102,7 @@ if members:
     # request and filter dependents to ResearchOutputs
     for member in members_yaml['groupmembers']:
         # fetch all dependents
-        r = requests.get(f"{base_url}/persons/{member['pure_id']}/dependents", headers=REQUEST_HEADERS)
+        r = requests.get(f"{base_url}/persons/{member['pure_id']}/dependents", headers=REQUEST_HEADERS, timeout=30)
         output = r.json().get('items', [])
     
         # filter dependents to which ones are publications (=research outputs), get the UUIDs and deduplicate them
@@ -113,7 +113,7 @@ if members:
         'uuids': list(all_uuids),
         'size': 500
     }
-    r = requests.post(f'{base_url}/research-outputs/search', headers=REQUEST_HEADERS, json=PUB_REQUEST_BODY)
+    r = requests.post(f'{base_url}/research-outputs/search', headers=REQUEST_HEADERS, json=PUB_REQUEST_BODY, timeout=30)
     
     # parse paper details into bibtex entries and create papers.bib
     bibtex_entries = [to_bibtex(get_fields(rec)) for rec in r.json().get("items", [])]
