@@ -1,6 +1,4 @@
-CODE_LINKS = {
-    "hofinger2022learnedv": "https://github.com/VLOGroup/LVVCP",
-    "kobler2022totaldee": "https://github.com/VLOGroup/tdv",
-    "cascarano2023constrai": "https://github.com/pcascarano/cDIP-RED-DIP-WTV",
-    "pourya2025dealingw": "https://github.com/mehrsapo/DEAL",
-}
+"hofinger2022learnedv": "https://github.com/VLOGroup/LVVCP"
+"kobler2022totaldee": "https://github.com/VLOGroup/tdv"
+"cascarano2023constrai": "https://github.com/pcascarano/cDIP-RED-DIP-WTV"
+"pourya2025dealingw": "https://github.com/mehrsapo/DEAL"
