@@ -14,6 +14,14 @@ def get_authors(pub_json):
     authors = [f"{author['name'].get('lastName')}, {author['name'].get('firstName')}" for author in pub_json.get('contributors', [])]
     return ' and '.join(authors)
 
+def get_pdf_link(pub_json):
+    for version in pub_json.get("electronicVersions", []) or []:
+        if version.get("typeDiscriminator") == "DoiElectronicVersion":
+            doi = version.get("doi")
+            if doi:
+                return f"https://doi.org/{doi}"
+    return None
+
 # helper function for getting title (and optionally subtitle) from a publication
 def get_title(pub_json):
     title = pub_json['title']['value']
@@ -64,6 +72,7 @@ def get_fields(pub_json):
         'author': get_authors(pub_json),
         'title': get_title(pub_json),
         'year': get_year(pub_json),
+        'pdf': get_pdf_link(pub_json),
         **add_fields,
     }
 
